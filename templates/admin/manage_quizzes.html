@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Quizzes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                            Manage Quizzes for Subtopic: {{ subtopic.title }}
+                        </h1>
+                        <div>
+                            <a href="{% url 'manage_subtopics' subtopic.topic.id %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Subtopics
+                            </a>
+                            <a href="{% url 'create_quiz' subtopic.id %}" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Add New Quiz
+                            </a>
+                        </div>
+                    </div>
+                    <p class="lead">Create, edit, and manage quizzes for {{ subtopic.title }}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Path:</strong> Week {{ subtopic.topic.week.order }}: {{ subtopic.topic.week.title }} &raquo; 
+                        Topic {{ subtopic.topic.order }}: {{ subtopic.topic.title }} &raquo;
+                        Subtopic {{ subtopic.order }}: {{ subtopic.title }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if quizzes %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Quizzes for {{ subtopic.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Time Limit</th>
+                                    <th>Passing Score</th>
+                                    <th>Questions</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in quizzes %}
+                                <tr>
+                                    <td>{{ quiz.title }}</td>
+                                    <td>{{ quiz.description|truncatechars:50 }}</td>
+                                    <td>{{ quiz.time_limit }} min</td>
+                                    <td>{{ quiz.passing_score }}%</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ quiz.questions.count }}</span>
+                                    </td>
+                                    <td>{{ quiz.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'edit_quiz_questions' quiz.id %}" class="btn btn-info btn-sm" title="Manage Questions">
+                                                <i class="fas fa-list-ol"></i>
+                                            </a>
+                                            <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-warning btn-sm" title="Edit Quiz">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger btn-sm" title="Delete Quiz">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="display-1 text-muted mb-4">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h3 class="card-title">No Quizzes Found</h3>
+                    <p class="card-text mb-4">Start by adding quizzes to {{ subtopic.title }}</p>
+                    <a href="{% url 'create_quiz' subtopic.id %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add First Quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

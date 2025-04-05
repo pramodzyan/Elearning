@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Quiz Questions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-list-ol me-2 text-primary"></i>
+                            Manage Questions for Quiz: {{ quiz.title }}
+                        </h1>
+                        <a href="{% url 'manage_quizzes' quiz.subtopic.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Quizzes
+                        </a>
+                    </div>
+                    <p class="lead">Add, edit, or remove questions for this quiz</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Path:</strong> 
+                        Week {{ quiz.subtopic.topic.week.order }}: {{ quiz.subtopic.topic.week.title }} &raquo; 
+                        Topic {{ quiz.subtopic.topic.order }}: {{ quiz.subtopic.topic.title }} &raquo;
+                        Subtopic {{ quiz.subtopic.order }}: {{ quiz.subtopic.title }} &raquo;
+                        Quiz: {{ quiz.title }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Questions</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ question_formset.management_form }}
+                        
+                        <div class="question-formset">
+                            {% for question_form in question_formset %}
+                            <div class="question-form mb-4 p-3 border rounded {% if not forloop.first %}mt-4{% endif %}">
+                                <h4 class="mb-3">Question {{ forloop.counter }}</h4>
+                                
+                                {% if question_form.instance.id %}
+                                <div class="mb-3">
+                                    <a href="{% url 'edit_question_choices' question_form.instance.id %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-cog me-1"></i> Edit Choices
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {{ question_form.id }}
+                                
+                                <div class="mb-3">
+                                    <label for="{{ question_form.text.id_for_label }}" class="form-label">Question Text</label>
+                                    {{ question_form.text }}
+                                    {% if question_form.text.errors %}
+                                    <div class="text-danger">
+                                        {{ question_form.text.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ question_form.order.id_for_label }}" class="form-label">Order</label>
+                                    {{ question_form.order }}
+                                    <div class="form-text">Display order of this question</div>
+                                    {% if question_form.order.errors %}
+                                    <div class="text-danger">
+                                        {{ question_form.order.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if question_formset.can_delete %}
+                                <div class="form-check mb-2">
+                                    {{ question_form.DELETE }}
+                                    <label class="form-check-label text-danger" for="{{ question_form.DELETE.id_for_label }}">
+                                        Delete this question
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'manage_quizzes' quiz.subtopic.id %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </a>
+                            <div>
+                                <button type="button" id="add-question" class="btn btn-success me-2">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Add Another Question
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Save Questions
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formset = document.querySelector('.question-formset');
+        const addButton = document.getElementById('add-question');
+        const totalForms = document.getElementById('id_questions-TOTAL_FORMS');
+        
+        // Add new question form when clicking the Add button
+        addButton.addEventListener('click', function() {
+            const formCount = parseInt(totalForms.value);
+            const newForm = document.querySelector('.question-form').cloneNode(true);
+            
+            // Update form index
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formCount}-`);
+            
+            // Clear input values
+            newForm.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = '';
+            });
+            
+            // Update heading
+            const heading = newForm.querySelector('h4');
+            heading.textContent = `Question ${formCount + 1}`;
+            
+            // Hide the choices link in the new form
+            const choicesLink = newForm.querySelector('.btn-info');
+            if (choicesLink) {
+                choicesLink.style.display = 'none';
+            }
+            
+            // Add the new form
+            formset.appendChild(newForm);
+            totalForms.value = formCount + 1;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if is_new %}Add New Topic{% else %}Edit Topic{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-book me-2 text-primary"></i>
+                            {% if is_new %}Add New Topic to Week: {{ week.title }}{% else %}Edit Topic: {{ topic.title }}{% endif %}
+                        </h1>
+                        <a href="{% url 'manage_topics' week.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Topics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        {% if is_new %}Topic Details{% else %}Edit Topic{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if not is_new %}
+                        <div class="mb-3">
+                            <label for="id_week" class="form-label">Week</label>
+                            <select name="week" id="id_week" class="form-select">
+                                {% for week_option in form.fields.week.queryset %}
+                                <option value="{{ week_option.id }}" {% if week_option.id == week.id %}selected{% endif %}>
+                                    Week {{ week_option.order }}: {{ week_option.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.week.errors %}
+                            <div class="text-danger">
+                                {{ form.week.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <input type="hidden" name="week" value="{{ week.id }}">
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            <input type="text" name="title" id="id_title" class="form-control" 
+                                value="{% if form.title.value %}{{ form.title.value }}{% endif %}" required>
+                            {% if form.title.errors %}
+                            <div class="text-danger">
+                                {{ form.title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            <textarea name="description" id="id_description" class="form-control" rows="4">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                            {% if form.description.errors %}
+                            <div class="text-danger">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_order" class="form-label">Order</label>
+                            <input type="number" name="order" id="id_order" class="form-control" 
+                                value="{% if form.order.value %}{{ form.order.value }}{% else %}1{% endif %}" min="1" required>
+                            <div class="form-text">The display order of this topic (lower numbers appear first)</div>
+                            {% if form.order.errors %}
+                            <div class="text-danger">
+                                {{ form.order.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'manage_topics' week.id %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if is_new %}Create Topic{% else %}Save Changes{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

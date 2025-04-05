@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                        Admin Dashboard
+                    </h1>
+                    <p class="lead">Welcome to the administration panel. Manage your educational content and track learner performance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-primary mb-2">{{ weeks_count }}</div>
+                    <h5 class="card-title">Weeks</h5>
+                    <a href="{% url 'manage_weeks' %}" class="btn btn-sm btn-outline-primary mt-2">Manage Weeks</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-success mb-2">{{ topics_count }}</div>
+                    <h5 class="card-title">Topics</h5>
+                    {% if weeks_count > 0 %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-success mt-2 dropdown-toggle" type="button" id="topicDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Topics
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="topicDropdown">
+                            {% for week in weeks %}
+                            <li><a class="dropdown-item" href="{% url 'manage_topics' week_id=week.id %}">Topics in {{ week.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-info mb-2">{{ subtopics_count }}</div>
+                    <h5 class="card-title">Subtopics</h5>
+                    {% if topics_count > 0 %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-info mt-2 dropdown-toggle" type="button" id="subtopicDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Subtopics
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="subtopicDropdown" style="max-height: 300px; overflow-y: auto;">
+                            {% for topic in topics %}
+                            <li><a class="dropdown-item" href="{% url 'manage_subtopics' topic_id=topic.id %}">Subtopics in {{ topic.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-warning mb-2">{{ quizzes_count }}</div>
+                    <h5 class="card-title">Quizzes</h5>
+                    {% if subtopics_count > 0 %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-warning mt-2 dropdown-toggle" type="button" id="quizDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Quizzes
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quizDropdown" style="max-height: 300px; overflow-y: auto;">
+                            {% for subtopic in subtopics %}
+                            <li><a class="dropdown-item" href="{% url 'manage_quizzes' subtopic_id=subtopic.id %}">Quizzes in {{ subtopic.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learner Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-primary mb-2">{{ learners_count }}</div>
+                    <h5 class="card-title">Registered Learners</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-success mb-2">{{ quiz_attempts }}</div>
+                    <h5 class="card-title">Quiz Attempts</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-info mb-2">{{ avg_score|floatformat:1 }}%</div>
+                    <h5 class="card-title">Average Quiz Score</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Content Management</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'manage_weeks' %}" class="btn btn-primary d-block py-3">
+                                <i class="fas fa-calendar-week me-2"></i> Manage Weeks
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'create_week' %}" class="btn btn-outline-primary d-block py-3">
+                                <i class="fas fa-plus-circle me-2"></i> Add New Week
+                            </a>
+                        </div>
+                        
+                        <!-- Add Topic dropdown button -->
+                        <div class="col-md-3 mb-3">
+                            <div class="dropdown">
+                                <button class="btn btn-success d-block w-100 py-3 dropdown-toggle" type="button" id="addTopicDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-folder-plus me-2"></i> Add New Topic
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="addTopicDropdown">
+                                    {% for week in weeks %}
+                                    <li><a class="dropdown-item" href="{% url 'create_topic' week_id=week.id %}">In {{ week.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Subtopic dropdown button -->
+                        <div class="col-md-3 mb-3">
+                            <div class="dropdown">
+                                <button class="btn btn-info d-block w-100 py-3 dropdown-toggle" type="button" id="addSubtopicDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-file-medical me-2"></i> Add New Subtopic
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="addSubtopicDropdown" style="max-height: 300px; overflow-y: auto;">
+                                    {% for topic in topics %}
+                                    <li><a class="dropdown-item" href="{% url 'create_subtopic' topic_id=topic.id %}">In {{ topic.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3">Quiz Management</h6>
+                    <div class="row">
+                        <!-- Add Quiz dropdown button -->
+                        <div class="col-md-4 mb-3">
+                            <div class="dropdown">
+                                <button class="btn btn-warning d-block w-100 py-3 dropdown-toggle" type="button" id="addQuizDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-question-circle me-2"></i> Add New Quiz
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="addQuizDropdown" style="max-height: 300px; overflow-y: auto;">
+                                    {% for subtopic in subtopics %}
+                                    <li><a class="dropdown-item" href="{% url 'create_quiz' subtopic_id=subtopic.id %}">For {{ subtopic.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Manage Quizzes dropdown button -->
+                        <div class="col-md-4 mb-3">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-warning d-block w-100 py-3 dropdown-toggle" type="button" id="manageQuizDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-tasks me-2"></i> Manage Quizzes
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="manageQuizDropdown" style="max-height: 300px; overflow-y: auto;">
+                                    {% for subtopic in subtopics %}
+                                    <li><a class="dropdown-item" href="{% url 'manage_quizzes' subtopic_id=subtopic.id %}">In {{ subtopic.title }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'student_performance' %}" class="btn btn-secondary d-block py-3">
+                                <i class="fas fa-chart-line me-2"></i> Student Performance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Quiz Attempts -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Recent Quiz Attempts</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Quiz</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in recent_attempts %}
+                                <tr>
+                                    <td>{{ attempt.user.username }}</td>
+                                    <td>{{ attempt.quiz.title }}</td>
+                                    <td>{{ attempt.score }}/{{ attempt.max_score }} ({{ attempt.percentage|floatformat:1 }}%)</td>
+                                    <td>
+                                        {% if attempt.passed %}
+                                        <span class="badge bg-success">Passed</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ attempt.completed_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        No quiz attempts recorded yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

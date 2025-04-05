@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if is_new %}Add New Quiz{% else %}Edit Quiz{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                            {% if is_new %}Add New Quiz to Subtopic: {{ subtopic.title }}{% else %}Edit Quiz: {{ quiz.title }}{% endif %}
+                        </h1>
+                        <a href="{% if is_new %}{% url 'manage_quizzes' subtopic.id %}{% else %}{% url 'manage_quizzes' quiz.subtopic.id %}{% endif %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Quizzes
+                        </a>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Path:</strong> 
+                        {% if is_new %}
+                        Week {{ subtopic.topic.week.order }}: {{ subtopic.topic.week.title }} &raquo; 
+                        Topic {{ subtopic.topic.order }}: {{ subtopic.topic.title }} &raquo;
+                        Subtopic {{ subtopic.order }}: {{ subtopic.title }}
+                        {% else %}
+                        Week {{ quiz.subtopic.topic.week.order }}: {{ quiz.subtopic.topic.week.title }} &raquo; 
+                        Topic {{ quiz.subtopic.topic.order }}: {{ quiz.subtopic.topic.title }} &raquo;
+                        Subtopic {{ quiz.subtopic.order }}: {{ quiz.subtopic.title }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        {% if is_new %}Quiz Details{% else %}Edit Quiz{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if not is_new %}
+                        <div class="mb-3">
+                            <label for="id_subtopic" class="form-label">Subtopic</label>
+                            <select name="subtopic" id="id_subtopic" class="form-select">
+                                {% for subtopic_option in form.fields.subtopic.queryset %}
+                                <option value="{{ subtopic_option.id }}" {% if subtopic_option.id == quiz.subtopic.id %}selected{% endif %}>
+                                    {{ subtopic_option.topic.week.title }} - {{ subtopic_option.topic.title }} - {{ subtopic_option.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.subtopic.errors %}
+                            <div class="text-danger">
+                                {{ form.subtopic.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <input type="hidden" name="subtopic" value="{{ subtopic.id }}">
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            <input type="text" name="title" id="id_title" class="form-control" 
+                                value="{% if form.title.value %}{{ form.title.value }}{% endif %}" required>
+                            {% if form.title.errors %}
+                            <div class="text-danger">
+                                {{ form.title.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label">Description</label>
+                            <textarea name="description" id="id_description" class="form-control" rows="4">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                            {% if form.description.errors %}
+                            <div class="text-danger">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_time_limit" class="form-label">Time Limit (minutes)</label>
+                            <input type="number" name="time_limit" id="id_time_limit" class="form-control" 
+                                value="{% if form.time_limit.value %}{{ form.time_limit.value }}{% else %}10{% endif %}" min="1" required>
+                            <div class="form-text">Time allowed for learners to complete the quiz (in minutes)</div>
+                            {% if form.time_limit.errors %}
+                            <div class="text-danger">
+                                {{ form.time_limit.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_passing_score" class="form-label">Passing Score (%)</label>
+                            <input type="number" name="passing_score" id="id_passing_score" class="form-control" 
+                                value="{% if form.passing_score.value %}{{ form.passing_score.value }}{% else %}70{% endif %}" min="1" max="100" required>
+                            <div class="form-text">Minimum percentage score required to pass the quiz</div>
+                            {% if form.passing_score.errors %}
+                            <div class="text-danger">
+                                {{ form.passing_score.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% if is_new %}{% url 'manage_quizzes' subtopic.id %}{% else %}{% url 'manage_quizzes' quiz.subtopic.id %}{% endif %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if is_new %}Create Quiz{% else %}Save Changes{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

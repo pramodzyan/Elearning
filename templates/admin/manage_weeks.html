@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Weeks{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-calendar-week me-2 text-primary"></i>
+                            Manage Weeks
+                        </h1>
+                        <a href="{% url 'create_week' %}" class="btn btn-success">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Add New Week
+                        </a>
+                    </div>
+                    <p class="lead">Create, edit, and organize the weekly structure of your course.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if weeks %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Course Weeks</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Topics</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for week in weeks %}
+                                <tr>
+                                    <td>{{ week.order }}</td>
+                                    <td>{{ week.title }}</td>
+                                    <td>{{ week.description|truncatechars:50 }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ week.topics.count }}</span>
+                                    </td>
+                                    <td>{{ week.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ week.updated_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'manage_topics' week.id %}" class="btn btn-info btn-sm" title="Manage Topics">
+                                                <i class="fas fa-list"></i>
+                                            </a>
+                                            <a href="{% url 'edit_week' week.id %}" class="btn btn-warning btn-sm" title="Edit Week">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_week' week.id %}" class="btn btn-danger btn-sm" title="Delete Week">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="display-1 text-muted mb-4">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3 class="card-title">No Weeks Found</h3>
+                    <p class="card-text mb-4">Start building your course by adding your first week.</p>
+                    <a href="{% url 'create_week' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add First Week
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

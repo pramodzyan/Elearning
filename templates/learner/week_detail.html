@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Week: {{ week.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-calendar-week me-2 text-primary"></i>
+                            Week {{ week.order }}: {{ week.title }}
+                        </h1>
+                        <a href="{% url 'learner_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                    <p class="lead">{{ week.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topics and Subtopics -->
+    {% if topics_with_subtopics %}
+    {% for topic_data in topics_with_subtopics %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book me-2 text-primary"></i>
+                        Topic {{ topic_data.topic.order }}: {{ topic_data.topic.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ topic_data.topic.description }}</p>
+                    
+                    {% if topic_data.subtopics %}
+                    <div class="mt-4">
+                        <h6 class="mb-3">Subtopics:</h6>
+                        <div class="list-group">
+                            {% for subtopic in topic_data.subtopics %}
+                            <a href="{% url 'subtopic_detail' subtopic.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ subtopic.order }}. {{ subtopic.title }}</h6>
+                                    <p class="mb-1 text-muted small">{{ subtopic.description|truncatechars:100 }}</p>
+                                </div>
+                                <div>
+                                    {% if subtopic.id in completed_subtopics %}
+                                    <span class="badge bg-success rounded-pill me-2">
+                                        <i class="fas fa-check me-1"></i> Reviewed
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% if subtopic.youtube_link %}
+                                    <span class="badge bg-danger rounded-pill me-2">
+                                        <i class="fab fa-youtube"></i>
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% if subtopic.quizzes.count > 0 %}
+                                    <span class="badge bg-primary rounded-pill">
+                                        <i class="fas fa-question-circle me-1"></i> Quiz
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No subtopics available for this topic yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="display-1 text-muted mb-4">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="card-title">No Topics Available</h3>
+                    <p class="card-text mb-4">This week doesn't have any topics yet. Please check back later.</p>
+                    <a href="{% url 'learner_dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

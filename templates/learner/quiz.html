@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz: {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-question-circle me-2 text-primary"></i>
+                            Quiz: {{ quiz.title }}
+                        </h1>
+                        <a href="{% url 'subtopic_detail' quiz.subtopic.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Subtopic
+                        </a>
+                    </div>
+                    <p class="lead">{{ quiz.description }}</p>
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <i class="fas fa-info-circle me-2"></i>
+                                This quiz contains <strong>{{ quiz.questions.count }}</strong> questions.
+                            </div>
+                            <div>
+                                <i class="fas fa-clock me-2"></i>
+                                Time limit: <strong>{{ quiz.time_limit }}</strong> minutes
+                            </div>
+                            <div>
+                                <i class="fas fa-trophy me-2"></i>
+                                Passing score: <strong>{{ quiz.passing_score }}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            Answer all questions
+                        </h5>
+                        <div id="quiz-timer" class="badge bg-warning text-dark p-2">
+                            <i class="fas fa-hourglass-half me-1"></i>
+                            <span id="timer-display">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="quiz-form">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="question-container mb-4 p-3 border rounded bg-dark">
+                            <h5 class="mb-3">
+                                <i class="fas fa-question-circle me-2 text-primary"></i>
+                                {{ field.label }}
+                            </h5>
+                            
+                            <div class="mb-3">
+                                {% for choice in field %}
+                                <div class="form-check">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if field.errors %}
+                            <div class="text-danger">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'subtopic_detail' quiz.subtopic.id %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Submit Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup quiz timer
+        const timeLimitMinutes = {{ time_limit_minutes }};
+        const timeLimitSeconds = timeLimitMinutes * 60;
+        let remainingSeconds = timeLimitSeconds;
+        
+        const timerDisplay = document.getElementById('timer-display');
+        const quizForm = document.getElementById('quiz-form');
+        
+        // Update timer every second
+        const timerInterval = setInterval(function() {
+            remainingSeconds--;
+            
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                // Auto-submit the form when time is up
+                quizForm.submit();
+            }
+            
+            // Display remaining time
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (remainingSeconds < 60) {
+                document.getElementById('quiz-timer').classList.remove('bg-warning');
+                document.getElementById('quiz-timer').classList.add('bg-danger', 'text-white');
+            }
+        }, 1000);
+        
+        // Initial display
+        const initialMinutes = Math.floor(timeLimitSeconds / 60);
+        const initialSeconds = timeLimitSeconds % 60;
+        timerDisplay.textContent = `${initialMinutes}:${initialSeconds.toString().padStart(2, '0')}`;
+    });
+</script>
+{% endblock %}

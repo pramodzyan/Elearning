@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-poll me-2 text-primary"></i>
+                            Quiz Results: {{ attempt.quiz.title }}
+                        </h1>
+                        <a href="{% url 'subtopic_detail' attempt.quiz.subtopic.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Subtopic
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Score Summary
+                    </h5>
+                </div>
+                <div class="card-body text-center p-4">
+                    <div class="display-1 mb-3 {% if attempt.passed %}text-success{% else %}text-danger{% endif %}">
+                        {{ attempt.percentage|floatformat:1 }}%
+                    </div>
+                    
+                    <h4 class="mb-4">
+                        {% if attempt.passed %}
+                        <span class="badge bg-success p-2">
+                            <i class="fas fa-check-circle me-1"></i> Passed
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger p-2">
+                            <i class="fas fa-times-circle me-1"></i> Failed
+                        </span>
+                        {% endif %}
+                    </h4>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="display-6 text-primary">{{ attempt.score }}</div>
+                            <p class="text-muted">Correct Answers</p>
+                        </div>
+                        <div class="col-6">
+                            <div class="display-6 text-muted">{{ attempt.max_score }}</div>
+                            <p class="text-muted">Total Questions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="mb-2">Passing score: {{ attempt.quiz.passing_score }}%</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar {% if attempt.passed %}bg-success{% else %}bg-danger{% endif %}" 
+                                role="progressbar" 
+                                style="width: {{ attempt.percentage }}%;" 
+                                aria-valuenow="{{ attempt.percentage }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-dark text-muted text-center">
+                    <small>
+                        <i class="fas fa-clock me-1"></i>
+                        Completed on: {{ attempt.completed_at|date:"F d, Y - h:i A" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Quiz Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">{{ attempt.quiz.title }}</h5>
+                    <p>{{ attempt.quiz.description }}</p>
+                    
+                    <div class="alert alert-primary mt-3">
+                        <div class="d-flex">
+                            <div class="me-auto">
+                                <i class="fas fa-bookmark me-1"></i>
+                                Subtopic: <strong>{{ attempt.quiz.subtopic.title }}</strong>
+                            </div>
+                            <div>
+                                <i class="fas fa-clock me-1"></i>
+                                Time limit: <strong>{{ attempt.quiz.time_limit }} minutes</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'take_quiz' attempt.quiz.id %}" class="btn btn-primary">
+                            <i class="fas fa-redo me-2"></i>
+                            Retake Quiz
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-ol me-2"></i>
+                        Detailed Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for response in question_responses %}
+                    <div class="question-result mb-4 p-3 border rounded {% if response.is_correct %}border-success{% else %}border-danger{% endif %}">
+                        <h5 class="mb-3">
+                            Question {{ forloop.counter }}: {{ response.question.text }}
+                        </h5>
+                        
+                        <div class="mb-3">
+                            {% for choice in response.all_choices %}
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" 
+                                    {% if choice.id == response.selected_choice.id %}checked{% endif %} 
+                                    {% if choice.id == response.correct_choice.id %}
+                                        style="accent-color: var(--bs-success);"
+                                    {% elif choice.id == response.selected_choice.id and not response.is_correct %}
+                                        style="accent-color: var(--bs-danger);"
+                                    {% endif %}
+                                    disabled>
+                                <label class="form-check-label 
+                                    {% if choice.id == response.correct_choice.id %}text-success fw-bold{% endif %}
+                                    {% if choice.id == response.selected_choice.id and not response.is_correct %}text-danger text-decoration-line-through{% endif %}">
+                                    {{ choice.text }}
+                                    {% if choice.id == response.correct_choice.id %}
+                                    <i class="fas fa-check-circle text-success ms-1"></i>
+                                    {% endif %}
+                                    {% if choice.id == response.selected_choice.id and not response.is_correct %}
+                                    <i class="fas fa-times-circle text-danger ms-1"></i>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="alert {% if response.is_correct %}alert-success{% else %}alert-danger{% endif %} mb-0">
+                            {% if response.is_correct %}
+                            <i class="fas fa-check-circle me-2"></i> Correct!
+                            {% else %}
+                            <i class="fas fa-times-circle me-2"></i> Incorrect. The correct answer is: <strong>{{ response.correct_choice.text }}</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

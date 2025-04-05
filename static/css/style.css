@@ -1,0 +1,132 @@
+/* Educational Platform Stylesheet */
+
+/* Global styles */
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --info-color: #17a2b8;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
+}
+
+footer {
+  margin-top: auto;
+  padding: 1rem 0;
+}
+
+/* Navigation */
+.navbar-brand {
+  font-weight: bold;
+}
+
+/* Course structure styling */
+.week-card, .topic-card, .subtopic-card {
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s;
+}
+
+.week-card:hover, .topic-card:hover, .subtopic-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Quiz styling */
+.quiz-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.question-card {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.choices-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.choice-item {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.choice-item:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.choice-item.selected {
+  background-color: rgba(0,123,255,0.1);
+  border-left: 3px solid var(--primary-color);
+}
+
+/* Dashboard stats */
+.stats-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stats-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.progress-circle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1rem;
+}
+
+/* Admin interface */
+.admin-actions {
+  margin-bottom: 2rem;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Auth pages */
+.auth-form {
+  max-width: 450px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+  
+  .progress-circle {
+    width: 100px;
+    height: 100px;
+  }
+}

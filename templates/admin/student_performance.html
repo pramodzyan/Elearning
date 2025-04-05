@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Performance{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2 text-primary"></i>
+                            Student Performance Analytics
+                        </h1>
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                    <p class="lead">Monitor student progress and quiz performance statistics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learner Performance -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        Learner Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if learner_performance %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Average Score</th>
+                                    <th>Quiz Attempts</th>
+                                    <th>Passed Quizzes</th>
+                                    <th>Pass Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for learner in learner_performance %}
+                                <tr>
+                                    <td>{{ learner.user.username }}</td>
+                                    <td>
+                                        {% if learner.avg_score > 0 %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">{{ learner.avg_score|floatformat:1 }}%</div>
+                                            <div class="progress flex-grow-1" style="height: 8px;">
+                                                <div class="progress-bar {% if learner.avg_score >= 70 %}bg-success{% elif learner.avg_score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" style="width: {{ learner.avg_score }}%" 
+                                                     aria-valuenow="{{ learner.avg_score }}" aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">No attempts</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ learner.total_attempts }}</td>
+                                    <td>{{ learner.passed_count }}</td>
+                                    <td>
+                                        {% if learner.total_attempts > 0 %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">{{ learner.pass_rate|floatformat:1 }}%</div>
+                                            <div class="progress flex-grow-1" style="height: 8px;">
+                                                <div class="progress-bar {% if learner.pass_rate >= 70 %}bg-success{% elif learner.pass_rate >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" style="width: {{ learner.pass_rate }}%" 
+                                                     aria-valuenow="{{ learner.pass_rate }}" aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No learner data available yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Statistics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Quiz Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if quiz_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Quiz</th>
+                                    <th>Subtopic</th>
+                                    <th>Total Attempts</th>
+                                    <th>Average Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in quiz_stats %}
+                                <tr>
+                                    <td>{{ quiz.title }}</td>
+                                    <td>{{ quiz.subtopic.title }}</td>
+                                    <td>{{ quiz.attempts_count }}</td>
+                                    <td>
+                                        {% if quiz.avg_score %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">{{ quiz.avg_score|floatformat:1 }}%</div>
+                                            <div class="progress flex-grow-1" style="height: 8px;">
+                                                <div class="progress-bar {% if quiz.avg_score >= 70 %}bg-success{% elif quiz.avg_score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" style="width: {{ quiz.avg_score }}%" 
+                                                     aria-valuenow="{{ quiz.avg_score }}" aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">No attempts</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No quiz data available yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

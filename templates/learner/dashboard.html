@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Learner Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                        Learner Dashboard
+                    </h1>
+                    <p class="lead">Welcome, {{ user.username }}! Track your progress and access course materials.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Summary -->
+    <div class="row mb-4">
+        <!-- Overall Progress -->
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-primary mb-2">
+                        {% if overall_progress %}
+                            {{ overall_progress|floatformat }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">Overall Progress</h5>
+                    {% if total_subtopics > 0 %}
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                             style="width: {{ overall_progress|default:0 }}%;" 
+                             aria-valuenow="{{ overall_progress|default:0 }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        {{ completed_subtopics_count }} of {{ total_subtopics }} subtopics completed
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quizzes Attempted -->
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-success mb-2">{{ quiz_attempts_count }}</div>
+                    <h5 class="card-title">Quizzes Attempted</h5>
+                    {% if quiz_attempts_count > 0 %}
+                    <span class="badge bg-success mt-2">{{ passed_quizzes_count }} Passed</span>
+                    {% if failed_quizzes_count > 0 %}
+                    <span class="badge bg-danger mt-2">{{ failed_quizzes_count }} Failed</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Average Score -->
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-info mb-2">
+                        {% if avg_quiz_score %}
+                            {{ avg_quiz_score|floatformat:1 }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">Average Quiz Score</h5>
+                    {% if highest_quiz_score %}
+                    <small class="text-muted d-block mt-2">
+                        Highest: {{ highest_quiz_score|floatformat:1 }}%
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Topics Completed -->
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="display-4 fw-bold text-warning mb-2">
+                        {{ completed_topics_count|default:0 }}/{{ total_topics_count|default:0 }}
+                    </div>
+                    <h5 class="card-title">Topics Completed</h5>
+                    {% if completed_topics_percent > 0 %}
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ completed_topics_percent }}%;" 
+                             aria-valuenow="{{ completed_topics_percent }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Recent Activity -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="timeline">
+                            {% for activity in recent_activities %}
+                                <div class="timeline-item mb-3 pb-3 border-bottom">
+                                    <div class="d-flex">
+                                        {% if activity.type == 'quiz_attempt' %}
+                                            <div class="timeline-icon bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-question"></i>
+                                            </div>
+                                        {% elif activity.type == 'topic_progress' %}
+                                            <div class="timeline-icon bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-book"></i>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">{{ activity.title }}</h6>
+                                            <p class="mb-1 small text-muted">{{ activity.description }}</p>
+                                            <small class="text-muted">{{ activity.timestamp|date:"M d, Y H:i" }}</small>
+                                            
+                                            {% if activity.type == 'quiz_attempt' and activity.score %}
+                                                <div class="mt-2">
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div class="progress-bar {% if activity.passed %}bg-success{% else %}bg-danger{% endif %}" 
+                                                             role="progressbar" 
+                                                             style="width: {{ activity.score }}%;" 
+                                                             aria-valuenow="{{ activity.score }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">Score: {{ activity.score|floatformat:1 }}%</small>
+                                                    
+                                                    {% if activity.link %}
+                                                        <a href="{{ activity.link }}" class="btn btn-sm btn-outline-primary mt-2">
+                                                            <i class="fas fa-eye me-1"></i> View Results
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No recent activity yet. Start exploring the course content!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommended Content -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Recommended Next Steps
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recommended_content %}
+                        <div class="list-group">
+                            {% for item in recommended_content %}
+                                <a href="{{ item.link }}" class="list-group-item list-group-item-action d-flex gap-3 py-3">
+                                    {% if item.type == 'subtopic' %}
+                                        <i class="fas fa-file-alt text-info fs-4 mt-1"></i>
+                                    {% elif item.type == 'quiz' %}
+                                        <i class="fas fa-question-circle text-warning fs-4 mt-1"></i>
+                                    {% elif item.type == 'failed_quiz' %}
+                                        <i class="fas fa-redo text-danger fs-4 mt-1"></i>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex gap-2 w-100 justify-content-between">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.title }}</h6>
+                                            <p class="mb-0 small text-muted">{{ item.description }}</p>
+                                        </div>
+                                        <small class="opacity-50 text-nowrap">{{ item.context }}</small>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Start exploring the course content below to get personalized recommendations.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Week Overview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Course Curriculum
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if weeks %}
+                    <div class="list-group">
+                        {% for week in weeks %}
+                        <div class="list-group-item list-group-item-action flex-column align-items-start bg-dark">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">
+                                    <i class="fas fa-calendar-week me-2 text-primary"></i>
+                                    Week {{ week.order }}: {{ week.title }}
+                                </h5>
+                                
+                                {% with week_attempts=attempts_by_week|get_item:week.id %}
+                                {% if week_attempts %}
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ week_attempts.passed }}/{{ week_attempts.total }} quizzes passed
+                                </span>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            
+                            <p class="mb-2">{{ week.description|truncatechars:200 }}</p>
+                            
+                            <!-- Progress Bar -->
+                            {% with week_topics=week.topics.all %}
+                            {% if week_topics %}
+                                {% comment %}Calculate total subtopics and completed count{% endcomment %}
+                                {% with total_subtopics=0 %}
+                                    {% with completed_count=0 %}
+                                        {% for topic in week_topics %}
+                                            {% with topic_subtopics=topic.subtopics.all %}
+                                                {% with topic_subtopics_count=topic_subtopics.count %}
+                                                    {% with new_total=total_subtopics|add:topic_subtopics_count %}
+                                                        {% for subtopic in topic_subtopics %}
+                                                            {% if subtopic.id in completed_subtopics %}
+                                                                {% with new_completed=completed_count|add:1 %}
+                                                                    {% if forloop.last and forloop.parentloop.last %}
+                                                                        {% if new_total > 0 %}
+                                                                            {% with progress_percentage=new_completed|div:new_total|mul:100 %}
+                                                                                <div class="progress mb-3" style="height: 8px;">
+                                                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                                                        style="width: {{ progress_percentage }}%;" 
+                                                                                        aria-valuenow="{{ progress_percentage }}" 
+                                                                                        aria-valuemin="0" aria-valuemax="100">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <small class="text-muted">
+                                                                                    {{ new_completed }} of {{ new_total }} subtopics completed ({{ progress_percentage|floatformat }}%)
+                                                                                </small>
+                                                                            {% endwith %}
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                    {% with completed_count=new_completed %}{% endwith %}
+                                                                {% endwith %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% with total_subtopics=new_total %}{% endwith %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                {% endwith %}
+                            {% endif %}
+                            {% endwith %}
+                            
+                            <div class="mt-3">
+                                <a href="{% url 'week_detail' week.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-book-open me-1"></i> View Week Content
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No course content available yet. Please check back later.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

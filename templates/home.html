@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Education Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h1 class="display-4 fw-bold mb-3">Welcome to Education Platform</h1>
+                        <p class="lead">An interactive learning platform for students and educators</p>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col-md-6">
+                            <div class="card h-100 bg-dark border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-graduate fa-3x mb-3 text-primary"></i>
+                                    <h3>For Learners</h3>
+                                    <p>Access course materials, watch videos, and test your knowledge with interactive quizzes</p>
+                                    {% if user.is_authenticated and user.profile.role == 'learner' %}
+                                        <a href="{% url 'learner_dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+                                    {% else %}
+                                        <a href="{% url 'register' %}" class="btn btn-outline-primary">Register as Learner</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 bg-dark border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chalkboard-teacher fa-3x mb-3 text-success"></i>
+                                    <h3>For Admins</h3>
+                                    <p>Create and manage course content, quizzes, and track student performance</p>
+                                    {% if user.is_authenticated and user.profile.role == 'admin' %}
+                                        <a href="{% url 'admin_dashboard' %}" class="btn btn-success">Go to Admin Panel</a>
+                                    {% else %}
+                                        <a href="{% url 'register' %}" class="btn btn-outline-success">Register as Admin</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark border-info mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-info-circle text-info me-2"></i>
+                                Platform Features
+                            </h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> Structured weekly curriculum</li>
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> Detailed topics and subtopics</li>
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> YouTube video integration</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> Interactive quizzes with instant feedback</li>
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> Performance tracking</li>
+                                        <li class="list-group-item bg-dark"><i class="fas fa-check text-success me-2"></i> Mobile-responsive design</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if weeks %}
+                    <div class="card bg-dark border-warning">
+                        <div class="card-body">
+                            <h3 class="card-title">
+                                <i class="fas fa-calendar-week text-warning me-2"></i>
+                                Available Weeks
+                            </h3>
+                            <div class="list-group">
+                                {% for week in weeks %}
+                                <a href="{% if user.is_authenticated and user.profile.role == 'learner' %}{% url 'week_detail' week.id %}{% else %}#{% endif %}" 
+                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ week.title }}</h5>
+                                        <p class="mb-1 text-muted">{{ week.description|truncatechars:100 }}</p>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ week.topics.count }} topics</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if not user.is_authenticated %}
+                    <div class="text-center mt-5">
+                        <p class="lead">Get started today!</p>
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i> Register
+                            </a>
+                            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

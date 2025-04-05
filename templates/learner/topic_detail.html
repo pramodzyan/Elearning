@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Topic: {{ topic.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-book me-2 text-primary"></i>
+                            Topic {{ topic.order }}: {{ topic.title }}
+                        </h1>
+                        <a href="{% url 'week_detail' topic.week.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Back to Week
+                        </a>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Path:</strong> Week {{ topic.week.order }}: {{ topic.week.title }} &raquo; Topic {{ topic.order }}: {{ topic.title }}
+                    </div>
+                    <p class="lead">{{ topic.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtopics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-alt me-2"></i>
+                        Subtopics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if subtopics %}
+                    <div class="list-group">
+                        {% for subtopic in subtopics %}
+                        <a href="{% url 'subtopic_detail' subtopic.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ subtopic.order }}. {{ subtopic.title }}</h5>
+                                <p class="mb-1 text-muted">{{ subtopic.description|truncatechars:150 }}</p>
+                            </div>
+                            <div class="ms-auto">
+                                {% if subtopic.id in completed_subtopics %}
+                                <span class="badge bg-success rounded-pill me-2">
+                                    <i class="fas fa-check me-1"></i> Reviewed
+                                </span>
+                                {% endif %}
+                                
+                                {% if subtopic.youtube_link %}
+                                <span class="badge bg-danger rounded-pill me-2">
+                                    <i class="fab fa-youtube"></i> Video
+                                </span>
+                                {% endif %}
+                                
+                                {% if subtopic.quizzes.count > 0 %}
+                                <span class="badge bg-primary rounded-pill">
+                                    <i class="fas fa-question-circle me-1"></i> Quiz
+                                </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No subtopics available for this topic yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topic Progress -->
+    {% if progress_percentage is not None %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        Progress Tracker
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Your progress for this topic:</h6>
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ progress_percentage }}%;" 
+                             aria-valuenow="{{ progress_percentage }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ progress_percentage }}%
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted">
+                        <span>{{ completed_count }} of {{ total_subtopics }} subtopics completed</span>
+                        <span>
+                            {% if quiz_passed_count %}
+                            <i class="fas fa-trophy text-warning me-1"></i> 
+                            {{ quiz_passed_count }} quizzes passed
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

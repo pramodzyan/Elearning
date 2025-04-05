@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Subtopics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="card-title mb-0">
+                            <i class="fas fa-list-alt me-2 text-primary"></i>
+                            Manage Subtopics for Topic: {{ topic.title }}
+                        </h1>
+                        <div>
+                            <a href="{% url 'manage_topics' topic.week.id %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Topics
+                            </a>
+                            <a href="{% url 'create_subtopic' topic.id %}" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Add New Subtopic
+                            </a>
+                        </div>
+                    </div>
+                    <p class="lead">Create, edit, and organize subtopics for {{ topic.title }}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Path:</strong> Week {{ topic.week.order }}: {{ topic.week.title }} &raquo; Topic {{ topic.order }}: {{ topic.title }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if subtopics %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark">
+                    <h5 class="mb-0">Subtopics in {{ topic.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>YouTube Link</th>
+                                    <th>Quizzes</th>
+                                    <th>Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subtopic in subtopics %}
+                                <tr>
+                                    <td>{{ subtopic.order }}</td>
+                                    <td>{{ subtopic.title }}</td>
+                                    <td>{{ subtopic.description|truncatechars:50 }}</td>
+                                    <td>
+                                        {% if subtopic.youtube_link %}
+                                        <a href="{{ subtopic.youtube_link }}" target="_blank" class="btn btn-sm btn-danger">
+                                            <i class="fab fa-youtube"></i> View
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ subtopic.quizzes.count }}</span>
+                                    </td>
+                                    <td>{{ subtopic.updated_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'manage_quizzes' subtopic.id %}" class="btn btn-info btn-sm" title="Manage Quizzes">
+                                                <i class="fas fa-question-circle"></i>
+                                            </a>
+                                            <a href="{% url 'edit_subtopic' subtopic.id %}" class="btn btn-warning btn-sm" title="Edit Subtopic">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_subtopic' subtopic.id %}" class="btn btn-danger btn-sm" title="Delete Subtopic">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="display-1 text-muted mb-4">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <h3 class="card-title">No Subtopics Found</h3>
+                    <p class="card-text mb-4">Start by adding subtopics to {{ topic.title }}</p>
+                    <a href="{% url 'create_subtopic' topic.id %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add First Subtopic
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
